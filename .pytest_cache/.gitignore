@@ -1,0 +1,18 @@
+# Виртуальное окружение Python
+venv/
+.venv/
+env/
+ENV/
+bin/
+lib/
+include/
+
+# Кэш Python и компиляции
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Кэш фреймворка pytest
+.pytest_cache/
+.cache/
