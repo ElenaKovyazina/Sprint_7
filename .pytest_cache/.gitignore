@@ -16,3 +16,7 @@ include/
 # Кэш фреймворка pytest
 .pytest_cache/
 .cache/
+
+venv/
+.pytest_cache/
+**/__pycache__/
