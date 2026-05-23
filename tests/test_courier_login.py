@@ -2,7 +2,8 @@ import requests
 import pytest
 import allure
 
-from helpers import register_new_courier_and_return_login_password, generate_random_string
+from helpers import generate_random_string
+from scooter_api import CourierAPI
 
 BASE_URL = 'https://qa-scooter.praktikum-services.ru'
 
@@ -12,7 +13,7 @@ class TestLoginCourier:
     def test_courier_can_login_successfully(self):
         
         allure.step("Регистрация курьера")
-        courier_data = register_new_courier_and_return_login_password()
+        courier_data = CourierAPI.register_new_courier_and_return_login_password()
         
         allure.step("Подготовка данных для авторизации")
         payload = {
@@ -33,7 +34,7 @@ class TestLoginCourier:
     def test_courier_authorization_with_wrong_login_or_password(self, wrong_data):
 
         allure.step("Регистрация курьера")
-        courier_data = register_new_courier_and_return_login_password()
+        courier_data = CourierAPI.register_new_courier_and_return_login_password()
         
         allure.step("Подготовка данных авторизации")        
         payload = {
@@ -57,7 +58,7 @@ class TestLoginCourier:
     def test_courier_authorization_with_empty_login_or_password(self,empty_data):
 
         allure.step("Регистрация курьера")
-        courier_data = register_new_courier_and_return_login_password()
+        courier_data = CourierAPI.register_new_courier_and_return_login_password()
 
         allure.step("Подготовка данных авторизации")         
         payload = {
@@ -73,9 +74,8 @@ class TestLoginCourier:
 
         allure.step("Проверка статус кода и появления сообщения об ошибке")
 
-        assert response.status_code in [400,504]
-        if response.status_code == 400:
-            assert response.json().get("message") == "Недостаточно данных для входа"
+        assert response.status_code == 400
+        assert response.json().get("message") == "Недостаточно данных для входа"
 
     
     @allure.title("Ошибка авторизации курьера под несуществующим пользователем")
@@ -88,6 +88,32 @@ class TestLoginCourier:
         }
 
         allure.step("Отправка POST - запроса с данными несуществвующего курьера")
+        response = requests.post(f'{BASE_URL}/api/v1/courier/login', data=payload)
+
+        allure.step("Проверка статус кода и появления сообщения об ошибке")
+        assert response.status_code == 404
+        assert response.json().get("message") == "Учетная запись не найдена"
+
+    @allure.title("Ошибка авторизации курьера при передаче неккорректных данных")
+    @pytest.mark.parametrize("invalid_field, invalid_value", [
+        ("login", 12345),         
+        ("password", True),       
+    ])
+    def test_authorization_with_invalid_data(self,invalid_field,invalid_value):
+        
+        allure.step("Регистрация курьера")
+        courier_data = CourierAPI.register_new_courier_and_return_login_password()
+
+        allure.step("Подготовка данных авторизации")         
+        payload = {
+            "login": courier_data[0],
+            "password": courier_data[1]
+        }
+
+        allure.step("Подмена поля на некорректный тип данных")
+        payload[invalid_field] = invalid_value
+
+        allure.step("Отправка POST - запроса с некорректными данными курьера")
         response = requests.post(f'{BASE_URL}/api/v1/courier/login', data=payload)
 
         allure.step("Проверка статус кода и появления сообщения об ошибке")

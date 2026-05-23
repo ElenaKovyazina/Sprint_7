@@ -3,7 +3,8 @@ import requests
 import pytest
 import allure
 
-from helpers import register_new_courier_and_return_login_password, generate_random_string
+from helpers import generate_random_string
+from scooter_api import CourierAPI
 
 BASE_URL = 'https://qa-scooter.praktikum-services.ru'
 
@@ -31,7 +32,7 @@ class TestCreateCourier:
     def test_cannot_create_two_identical_couriers(self):
 
         allure.step("Регистрация первого курьера")
-        courier_data = register_new_courier_and_return_login_password()
+        courier_data = CourierAPI.register_new_courier_and_return_login_password()
         
         allure.step("Подготовка данных дубликата курьера")
         payload = {
@@ -52,7 +53,7 @@ class TestCreateCourier:
     def test_cannot_create_courier_with_existing_login(self):
         
         allure.step("Регистрация курьера")
-        courier_data = register_new_courier_and_return_login_password()
+        courier_data = CourierAPI.register_new_courier_and_return_login_password()
         existing_login = courier_data[0]
         
         allure.step("Подготовка данных нового курьера с уже занятым логином")
