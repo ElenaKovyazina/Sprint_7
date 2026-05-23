@@ -1,0 +1,18 @@
+# Виртуальное окружение Python
+venv/
+.venv/
+env/
+ENV/
+bin/
+lib/
+include/
+
+# Кэш Python и компиляции
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+venv/
+.pytest_cache/
+**/__pycache__/
